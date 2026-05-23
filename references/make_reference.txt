@@ -1,0 +1,242 @@
+========================================
+        MINI OS BUILD REFERENCE
+========================================
+
+PROJECT STRUCTURE
+-----------------
+
+project/
+├── bzImage
+├── rootfs/
+│   ├── bin/
+│   ├── dev/
+│   ├── proc/
+│   ├── sbin/
+│   └── sys/
+│
+├── src/
+│   ├── bin/
+│   └── sbin/
+│
+└── Makefile
+
+
+========================================
+MAKEFILE NAME
+========================================
+
+File must be named exactly:
+
+Makefile
+
+NOT:
+- MakeFile
+- makefile.txt
+
+
+========================================
+BUILD EXECUTABLES
+========================================
+
+Build all source files from src/
+and place executables into rootfs/
+
+Command:
+make
+
+
+========================================
+BUILD TYPES
+========================================
+
+Static build (default):
+
+Command:
+make
+
+Compiles with:
+-static
+
+
+Dynamic build:
+
+Command:
+make TYPE=dynamic
+
+Compiles without:
+-static
+
+
+========================================
+INCREMENTAL BUILDS
+========================================
+
+Only modified files rebuild automatically.
+
+Example:
+
+If you edit:
+src/sbin/test.c
+
+Then run:
+make
+
+Only this executable rebuilds:
+rootfs/sbin/test
+
+Entire project is NOT rebuilt.
+
+
+========================================
+CREATE INITRAMFS
+========================================
+
+Root filesystem source:
+rootfs/
+
+Manual Method:
+cd rootfs
+find . | cpio -o -H newc | gzip > ../initramfs.cpio.gz
+
+Makefile Method:
+make cpio
+
+
+========================================
+INITRAMFS OUTPUT LOCATION
+========================================
+
+Generated file location:
+
+project/initramfs.cpio.gz
+
+
+Custom output:
+
+Command:
+make cpio INITRAMFS=myos.cpio.gz
+
+Creates:
+project/myos.cpio.gz
+
+
+========================================
+BOOT WITH QEMU
+========================================
+
+Manual Method:
+
+qemu-system-x86_64 \
+-kernel bzImage \
+-initrd initramfs.cpio.gz \
+-m 256M
+
+
+========================================
+BOOT USING MAKEFILE
+========================================
+
+Command:
+make boot
+
+
+Custom kernel:
+
+make boot KERNEL=./linux/arch/x86/boot/bzImage
+
+
+========================================
+BOOT WITH CUSTOM KERNEL + INITRAMFS
+========================================
+
+Command:
+make boot \
+KERNEL=./linux/arch/x86/boot/bzImage \
+INITRAMFS=myos.cpio.gz
+
+
+========================================
+CLEAN GENERATED FILES
+========================================
+
+Command:
+make clean
+
+Removes:
+- generated executables
+- generated *.cpio.gz files
+
+Does NOT remove:
+- source files
+- Makefile
+- directories
+
+
+========================================
+SOURCE → OUTPUT MAPPING
+========================================
+
+Source File:
+src/sbin/test.c
+
+Generated Executable:
+rootfs/sbin/test
+
+
+Nested Example:
+
+Source:
+src/sbin/random/nn.c
+
+Generated:
+rootfs/sbin/random/nn
+
+
+========================================
+STATIC BUILD RECOMMENDED
+========================================
+
+Use:
+-static
+
+Reason:
+initramfs usually has no:
+- libc
+- shared libraries
+- dynamic loader
+
+
+========================================
+VERIFY BINARY TYPE
+========================================
+
+Check executable type:
+
+file rootfs/sbin/test
+
+
+Static output example:
+statically linked
+
+
+Dynamic output example:
+dynamically linked
+
+
+========================================
+TYPICAL WORKFLOW
+========================================
+
+1. Write code
+
+2. Build executables:
+   make
+
+3. Create initramfs:
+   make cpio
+
+4. Boot:
+   make boot
+
+
+========================================
