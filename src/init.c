@@ -127,7 +127,9 @@ int main() {
     cleanup_vfs();
 
     // 6. Pivot to Stage-2 OS
-    boot_dinit("/mnt/root", "/sbin/dinit");
+    // boot_dinit("/mnt/root", "/sbin/dinit");
+    // 6. Pivot to Stage-2 OS (Direct to BusyBox Shell)
+    boot_dinit("/mnt/root", "/bin/sh");
 
     // 7. Ultimate Fallback (If switch_root fails)
     printf("[!] Kernel Panic: switch_root failed!\n");
